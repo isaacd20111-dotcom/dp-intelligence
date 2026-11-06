@@ -109,10 +109,10 @@
     <form method="dialog"><button class="dialog-close" aria-label="Close image setup">×</button></form>
     <div class="dialog-eyebrow">IMAGE GENERATION</div>
     <h2>Connect your image account</h2>
-    <p class="dialog-description">DP Intelligence sends your image prompt to Pollinations. Your account authorizes a limited image-only budget, and you can revoke it any time. Generation uses your Pollinations balance.</p>
+    <p class="dialog-description">DP Intelligence now uses a higher-quality image model and adds composition guidance to your prompt. Images may take longer and use more of your Pollinations balance. Approve an image-only budget on Pollinations; you can change or revoke it there.</p>
     <label class="field-label" for="pollinationsAppKey">Pollinations App Key</label>
     <div class="key-input-wrap"><input id="pollinationsAppKey" type="text" placeholder="pk_…" autocomplete="off" spellcheck="false" /></div>
-    <div class="settings-note"><span>✳</span><span>First, create an App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Set its redirect URL to <strong id="imageRedirectUrl"></strong>, then paste the public pk_ key here. Never paste an sk_ secret key.</span></div>
+    <div class="settings-note"><span>✳</span><span>Create or reuse an App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Allow image models on the consent screen. Set its redirect URL to <strong id="imageRedirectUrl"></strong>, then paste the public pk_ key here. Never paste an sk_ secret key.</span></div>
     <button id="connectImageAccount" class="save-button" type="button">Authorize image generation <span>→</span></button>
     <button id="disconnectImageAccount" class="clear-key" type="button">Disconnect this image account</button>
   </dialog>
