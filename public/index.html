@@ -98,10 +98,10 @@
     <form method="dialog"><button class="dialog-close" aria-label="Close cloud AI setup">×</button></form>
     <div class="dialog-eyebrow">STRONGER ONLINE ANSWERS</div>
     <h2>Connect Cloud AI</h2>
-    <p class="dialog-description">Cloud AI uses a stronger hosted model than the small iPhone model. Your prompts are sent to Pollinations. The consent screen lets you set a spending limit; generation stops when that budget is used.</p>
+    <p class="dialog-description">Cloud AI uses a hosted model and sends your prompts to Pollinations. To remove the per-key spending cap, clear the Budget field on the Pollinations consent screen. Requests can still stop when your available Pollen balance runs out, and you can revoke access at any time.</p>
     <label class="field-label" for="pollinationsTextAppKey">Pollinations App Key</label>
     <div class="key-input-wrap"><input id="pollinationsTextAppKey" type="text" placeholder="pk_…" autocomplete="off" spellcheck="false" /></div>
-    <div class="settings-note"><span>✳</span><span>Create or reuse a public App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Its redirect URL must be <strong id="textRedirectUrl"></strong>. Paste the public pk_ key here, then approve the model and budget on Pollinations. Never paste an sk_ secret key.</span></div>
+    <div class="settings-note"><span>✳</span><span>Create or reuse a public App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Its redirect URL must be <strong id="textRedirectUrl"></strong>. Paste the public pk_ key here and clear the Budget field on the consent screen to remove the per-key cap. Never paste an sk_ secret key.</span></div>
     <button id="connectTextAccount" class="save-button" type="button">Authorize Cloud AI <span>→</span></button>
     <button id="disconnectTextAccount" class="clear-key" type="button">Disconnect Cloud AI</button>
   </dialog>
@@ -109,10 +109,10 @@
     <form method="dialog"><button class="dialog-close" aria-label="Close image setup">×</button></form>
     <div class="dialog-eyebrow">IMAGE GENERATION</div>
     <h2>Connect your image account</h2>
-    <p class="dialog-description">DP Intelligence now uses a higher-quality image model and adds composition guidance to your prompt. Images may take longer and use more of your Pollinations balance. Approve an image-only budget on Pollinations; you can change or revoke it there.</p>
+    <p class="dialog-description">DP Intelligence uses a higher-quality image model and adds composition guidance to your prompt. Images may take longer and use more of your Pollinations balance. Clear the Budget field on the Pollinations consent screen to remove the per-key cap; generation still stops when your available balance runs out.</p>
     <label class="field-label" for="pollinationsAppKey">Pollinations App Key</label>
     <div class="key-input-wrap"><input id="pollinationsAppKey" type="text" placeholder="pk_…" autocomplete="off" spellcheck="false" /></div>
-    <div class="settings-note"><span>✳</span><span>Create or reuse an App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Allow image models on the consent screen. Set its redirect URL to <strong id="imageRedirectUrl"></strong>, then paste the public pk_ key here. Never paste an sk_ secret key.</span></div>
+    <div class="settings-note"><span>✳</span><span>Create or reuse an App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Allow image models, set its redirect URL to <strong id="imageRedirectUrl"></strong>, and paste the public pk_ key here. On the consent screen, clear Budget to remove the per-key cap. Never paste an sk_ secret key.</span></div>
     <button id="connectImageAccount" class="save-button" type="button">Authorize image generation <span>→</span></button>
     <button id="disconnectImageAccount" class="clear-key" type="button">Disconnect this image account</button>
   </dialog>
