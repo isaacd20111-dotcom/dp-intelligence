@@ -84,12 +84,12 @@
       <div class="key-input-wrap"><input id="profileEmailInput" type="email" placeholder="you@example.com" autocomplete="email" required /></div>
       <label class="field-label model-label" for="profilePhoneInput">Phone number</label>
       <div class="key-input-wrap"><input id="profilePhoneInput" type="tel" placeholder="Your phone number" autocomplete="tel" required /></div>
-      <label class="field-label model-label" for="modelSelect">On-device model <span class="optional">3B is sharper; 1B is faster</span></label>
+      <label class="field-label model-label" for="modelSelect">On-device model <span class="optional">choose for your device</span></label>
       <select id="modelSelect"></select>
       <div class="settings-note"><span>✳</span><span>This is a local profile, not a verified online account. Your email and phone stay in this browser and are not sent anywhere.</span></div>
       <button id="saveProfile" class="save-button" type="submit">Create my profile <span>→</span></button>
     </form>
-    <div class="local-model-note">DP Intelligence runs on your device. The first chat downloads the model; after that, it’s saved in your browser.</div>
+    <div class="local-model-note">DP Intelligence runs on your device. The first chat downloads the model; after that, it’s saved in your browser. iPhone and iPad use a smaller model to reduce the chance Safari closes the page while loading.</div>
   </dialog>
   <script type="module" src="/app.js"></script>
 </body>

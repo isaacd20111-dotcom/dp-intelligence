@@ -10,13 +10,16 @@ let enginePromise = null;
 let engine = null;
 const MODEL_3B = 'Llama-3.2-3B-Instruct-q4f16_1-MLC';
 const MODEL_1B = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
+const MODEL_IOS = 'SmolLM2-360M-Instruct-q4f32_1-MLC';
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const DEFAULT_MODEL = isIOS ? MODEL_IOS : MODEL_3B;
 
 // Older versions stored a provider key in these settings. Nova no longer uses it.
 try {
   localStorage.removeItem('nova.settings');
-  if (![MODEL_3B, MODEL_1B].includes(localSettings.model)) localSettings.model = MODEL_3B;
+  if (![MODEL_3B, MODEL_1B, MODEL_IOS].includes(localSettings.model) || (isIOS && localSettings.model === MODEL_3B)) localSettings.model = DEFAULT_MODEL;
   localStorage.setItem('nova.localSettings', JSON.stringify(localSettings));
-} catch { localStorage.removeItem('nova.settings'); localSettings={model:MODEL_3B}; }
+} catch { localStorage.removeItem('nova.settings'); localSettings={model:DEFAULT_MODEL}; }
 state.coding=Boolean(localSettings.coding);
 
 function saveChats(){ localStorage.setItem('nova.chats', JSON.stringify(state.chats)); renderHistory(); }
@@ -66,7 +69,7 @@ async function ensureEngine(){
   if(!enginePromise){
     enginePromise=(async()=>{
       if(!navigator.gpu)throw new Error('This browser does not support WebGPU. Open DP Intelligence in an up-to-date Chrome or Edge browser to run AI on this device.');
-      const model=localSettings.model||MODEL_3B;
+      const model=localSettings.model||DEFAULT_MODEL;
       setThinking('Loading the on-device AI model…');
       const result=await CreateMLCEngine(model,{initProgressCallback:(progress)=>{const label=progress?.text||'';const percent=label.match(/([\d.]+)% completed/i)?.[1];const amount=label.match(/([\d.]+\s*MB) fetched/i)?.[1];setThinking(percent?`Downloading model · ${Math.round(Number(percent))}%${amount?` · ${amount} so far`:''}`:'Preparing the local AI model…');}});
       engine=result;
@@ -147,6 +150,6 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 
 modelSelectOptions();
 setCoding(state.coding);
-function modelSelectOptions(){const select=$('#modelSelect');select.innerHTML=`<option value="${MODEL_3B}">Llama 3.2 · 3B · sharper answers</option><option value="${MODEL_1B}">Llama 3.2 · 1B · faster responses</option>`;select.value=localSettings.model||MODEL_3B;select.addEventListener('change',()=>{if(engine&&localSettings.model!==select.value){engine=null;enginePromise=null;}localSettings.model=select.value;localStorage.setItem('nova.localSettings',JSON.stringify(localSettings));});}
+function modelSelectOptions(){const select=$('#modelSelect');select.innerHTML=`${isIOS?`<option value="${MODEL_IOS}">SmolLM2 · 360M · recommended for iPhone/iPad</option>`:''}<option value="${MODEL_3B}">Llama 3.2 · 3B · sharper answers</option><option value="${MODEL_1B}">Llama 3.2 · 1B · faster responses</option>`;select.value=localSettings.model||DEFAULT_MODEL;select.addEventListener('change',()=>{if(engine&&localSettings.model!==select.value){engine=null;enginePromise=null;}localSettings.model=select.value;localStorage.setItem('nova.localSettings',JSON.stringify(localSettings));});}
 
 renderHistory();updateProfileUI();if(state.chats.length){openChat(state.chats[0].id);const last=activeChat()?.messages.at(-1);if(last?.role==='user')requestAnimationFrame(()=>sendMessage(last.content,{resume:true}));}else showWelcome();if(!profile)settingsDialog.showModal();
