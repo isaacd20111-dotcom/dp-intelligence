@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#11110f" />
+  <title>DP Intelligence — your AI, in the know</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-top">
+        <a class="brand" href="#" aria-label="DP Intelligence home">
+          <span class="brand-mark"><svg viewBox="0 0 32 32" fill="none"><path d="M16 3.5 19 12l8.5 4-8.5 3L16 27.5 13 19l-8.5-3 8.5-4L16 3.5Z" fill="currentColor"/><circle cx="25.5" cy="7" r="2" fill="currentColor" opacity=".65"/></svg></span>
+          <span>DP intelligence<span class="brand-period">.</span></span>
+        </a>
+        <button class="icon-button mobile-close" id="closeSidebar" aria-label="Close menu">×</button>
+        <button class="new-chat" id="newChat"><span class="plus">＋</span> New chat <kbd>⌘ K</kbd></button>
+        <div class="side-label">YOUR SPACE</div>
+        <button class="side-link active" id="homeLink"><svg viewBox="0 0 20 20"><path d="M3 9.1 10 3l7 6.1v7.1a.8.8 0 0 1-.8.8H3.8a.8.8 0 0 1-.8-.8V9.1Z"/><path d="M7.5 17v-5.5h5V17"/></svg> Home</button>
+      </div>
+      <div class="history-wrap">
+        <div class="side-label history-label">RECENT</div>
+        <div id="historyList" class="history-list"></div>
+        <div class="empty-history" id="emptyHistory">Your conversations<br />will show up here.</div>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="side-link" id="settingsButton"><span class="settings-icon">⚙</span> Your profile <span id="keyStatus" class="key-status"></span></button>
+        <div class="profile"><div class="avatar" id="profileAvatar">Y</div><div class="profile-copy"><strong id="profileEmail">Your space</strong><span>Saved on this device</span></div><span class="profile-dots">···</span></div>
+      </div>
+    </aside>
+    <div class="mobile-scrim" id="scrim"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-button menu-button" id="menuButton" aria-label="Open menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <div class="topbar-title" id="topbarTitle">A little more capable.</div>
+        <div class="topbar-right"><span class="online-dot"></span><span class="search-status" id="searchStatus" hidden>Searching…</span><span class="online-label" id="modelStatus">AI runs on this device</span><button class="top-settings" id="settingsTop">Your profile <span>↗</span></button></div>
+      </header>
+
+      <section class="welcome" id="welcome">
+        <div class="eyebrow"><span class="sparkle-mini">✳</span> DP INTELLIGENCE · ON DEVICE</div>
+        <h1>Good thinking<br />starts <span>here.</span></h1>
+        <p class="welcome-copy">Ask anything. DP Intelligence looks things up, connects the dots,<br class="desktop-break" /> and gives you an answer you can actually use.</p>
+        <div class="prompt-grid">
+          <button class="prompt-card" data-prompt="What are the most interesting things happening in the world today?"><span class="card-icon warm">◉</span><span class="card-text"><strong>Catch me up</strong><small>What’s happening in the world today?</small></span><span class="card-arrow">↗</span></button>
+          <button class="prompt-card" data-prompt="Help me understand a complicated topic in simple terms."><span class="card-icon violet">✧</span><span class="card-text"><strong>Make it make sense</strong><small>Explain something complicated, simply.</small></span><span class="card-arrow">↗</span></button>
+          <button class="prompt-card" data-prompt="Help me plan a great weekend, with a few thoughtful ideas."><span class="card-icon green">⌁</span><span class="card-text"><strong>Make a plan</strong><small>Turn a vague idea into a good one.</small></span><span class="card-arrow">↗</span></button>
+          <button class="prompt-card" data-prompt="Give me a fresh perspective on a problem I’m working through."><span class="card-icon blue">✳</span><span class="card-text"><strong>Think it through</strong><small>Get a fresh perspective on a problem.</small></span><span class="card-arrow">↗</span></button>
+        </div>
+        <div class="welcome-foot"><span class="web-icon">◎</span> Grounded in the live web <span class="foot-dot">·</span> Sources included</div>
+      </section>
+
+      <section class="conversation hidden" id="conversation" aria-live="polite"></section>
+
+      <div class="composer-area" id="composerArea">
+        <form class="composer" id="chatForm">
+          <textarea id="messageInput" rows="1" placeholder="Ask DP Intelligence anything…" aria-label="Your message"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-tools">
+              <button type="button" class="tool-pill active" id="webToggle" aria-pressed="true"><span>◎</span> Web search <span class="toggle-dot"></span></button>
+              <span class="composer-hint">Search the web for current answers</span>
+            </div>
+            <button class="send-button" id="sendButton" type="submit" aria-label="Send message"><svg viewBox="0 0 20 20"><path d="M10 15V4m0 0L5.5 8.5M10 4l4.5 4.5"/></svg></button>
+          </div>
+        </form>
+        <div class="disclaimer">AI can make mistakes. For important decisions, check the sources.</div>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog"><button class="dialog-close" aria-label="Close profile">×</button></form>
+    <div class="dialog-eyebrow">YOUR DP INTELLIGENCE PROFILE</div>
+    <h2>Create your profile</h2>
+    <p class="dialog-description">Add your email and phone number to label your space on this device.</p>
+    <form id="profileForm">
+      <label class="field-label" for="profileEmailInput">Email address</label>
+      <div class="key-input-wrap"><input id="profileEmailInput" type="email" placeholder="you@example.com" autocomplete="email" required /></div>
+      <label class="field-label model-label" for="profilePhoneInput">Phone number</label>
+      <div class="key-input-wrap"><input id="profilePhoneInput" type="tel" placeholder="Your phone number" autocomplete="tel" required /></div>
+      <label class="field-label model-label" for="modelSelect">On-device model <span class="optional">3B is sharper; 1B is faster</span></label>
+      <select id="modelSelect"></select>
+      <div class="settings-note"><span>✳</span><span>This is a local profile, not a verified online account. Your email and phone stay in this browser and are not sent anywhere.</span></div>
+      <button id="saveProfile" class="save-button" type="submit">Create my profile <span>→</span></button>
+    </form>
+    <div class="local-model-note">DP Intelligence runs on your device. The first chat downloads the model; after that, it’s saved in your browser.</div>
+  </dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
