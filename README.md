@@ -10,7 +10,7 @@ DP Intelligence runs an open model directly in your browser, so you do not need 
 4. Create a local profile with your email and phone number.
 5. Ask a question. The first model download can take a few minutes; later chats reuse the browser cache.
 
-The default Llama 3.2 3B model gives stronger answers and needs a WebGPU-compatible browser and about 2.3 GB of graphics memory. Choose the smaller 1B model in your profile for faster replies and a smaller download. Keep the browser open while the model downloads. Code mode helps structure code-generation requests, but the local model does not execute or verify the code and can still make mistakes. A local model has less capability than large hosted AI services, but web search can ground answers in current sources.
+The default Llama 3.2 3B model gives stronger answers and needs a WebGPU-compatible browser and about 2.3 GB of graphics memory. Choose the smaller 1B model in your profile for faster replies and a smaller download. On iPhone and iPad, DP Intelligence selects the much smaller SmolLM2 360M model by default because Safari can close a page when larger models use too much memory. Keep the browser open while the model downloads. Code mode helps structure code-generation requests, but the local model does not execute or verify the code and can still make mistakes. A local model has less capability than large hosted AI services, but web search can ground answers in current sources.
 
 ## Profile and privacy
 
