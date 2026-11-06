@@ -1,0 +1,155 @@
+import http from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { extname, join, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = join(fileURLToPath(new URL('.', import.meta.url)), 'public');
+const port = Number(process.env.PORT || 4173);
+const host = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const requestCounts = new Map();
+
+function allowApiRequest(req, res) {
+  const now = Date.now();
+  const forwarded = req.headers['x-forwarded-for'];
+  const address = (typeof forwarded === 'string' ? forwarded.split(',').at(-1)?.trim() : '') || req.socket.remoteAddress || 'unknown';
+  const bucket = requestCounts.get(address);
+  if (!bucket || now - bucket.startedAt >= 60_000) {
+    requestCounts.set(address, { startedAt: now, count: 1 });
+    return true;
+  }
+  if (bucket.count >= 30) {
+    res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8', 'Retry-After': '60' });
+    res.end(JSON.stringify({ error: 'Too many searches. Please wait a minute and try again.' }));
+    return false;
+  }
+  bucket.count++;
+  return true;
+}
+
+function readJson(req, res) {
+  return new Promise((resolve, reject) => {
+    let raw = '';
+    req.on('data', chunk => {
+      raw += chunk;
+      if (raw.length > 10_000) {
+        res.writeHead(413, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: 'Search request is too large.' }));
+        reject(new Error('Request body too large'));
+        req.destroy();
+      }
+    });
+    req.on('end', () => {
+      if (res.writableEnded) return;
+      try { resolve(JSON.parse(raw)); } catch { reject(new Error('Invalid request.')); }
+    });
+    req.on('error', reject);
+  });
+}
+
+function decodeHtml(value = '') {
+  return value.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#x([\da-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16))).replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec))).trim();
+}
+
+async function searchWeb(query) {
+  const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query.slice(0, 300))}`;
+  const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 DPIntelligence/1.0', 'Accept': 'text/html' }, signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error('Web search is temporarily unavailable. Try again in a moment.');
+  const html = await response.text();
+  const links = [...html.matchAll(/<a\b(?=[^>]*\bclass="[^"]*result__a)[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)];
+  const results = [];
+  for (let i = 0; i < links.length && results.length < 6; i++) {
+    let href = links[i][1].replace(/&amp;/g, '&');
+    try {
+      const parsed = new URL(href.startsWith('//') ? `https:${href}` : href);
+      const destination = parsed.searchParams.get('uddg');
+      if (destination) href = destination;
+      const safeUrl = new URL(href);
+      if (!['http:', 'https:'].includes(safeUrl.protocol) || safeUrl.hostname.includes('duckduckgo.com')) continue;
+    } catch { continue; }
+    const nextLinkStart = links[i].index + links[i][0].length;
+    const nextResultStart = html.indexOf('result__a', nextLinkStart);
+    const region = html.slice(nextLinkStart, nextResultStart > -1 ? nextResultStart : nextLinkStart + 2500);
+    const snippetMatch = region.match(/class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\//i);
+    results.push({ title: decodeHtml(links[i][2]), url: href, snippet: decodeHtml(snippetMatch?.[1] || '') });
+  }
+  return results;
+}
+
+async function searchImages(query) {
+  const api = new URL('https://commons.wikimedia.org/w/api.php');
+  for (const [key, value] of Object.entries({
+    action: 'query', generator: 'search', gsrsearch: query.slice(0, 180), gsrnamespace: '6', gsrwhat: 'text',
+    gsrlimit: '8', prop: 'imageinfo', iiprop: 'url|mime', iiurlwidth: '800', format: 'json', formatversion: '2'
+  })) api.searchParams.set(key, value);
+  const response = await fetch(api, { headers: { 'User-Agent': 'DPIntelligence/1.0 (local personal assistant)', 'Accept': 'application/json' }, signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error('Image search is temporarily unavailable.');
+  const data = await response.json();
+  const pages = Array.isArray(data.query?.pages) ? data.query.pages : Object.values(data.query?.pages || {});
+  const images = [];
+  for (const page of pages) {
+    const info = page.imageinfo?.[0];
+    if (!info?.mime?.startsWith('image/') || !info.thumburl || !info.descriptionurl) continue;
+    try {
+      const thumbnail = new URL(info.thumburl);
+      const source = new URL(info.descriptionurl);
+      if (thumbnail.hostname !== 'upload.wikimedia.org' || source.hostname !== 'commons.wikimedia.org') continue;
+      images.push({ title: decodeHtml(page.title.replace(/^File:/i, '').replace(/_/g, ' ')), thumbnail: thumbnail.href, source: source.href });
+    } catch { continue; }
+    if (images.length >= 4) break;
+  }
+  return images;
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.method === 'POST' && req.url === '/api/search') {
+    if (!allowApiRequest(req, res)) return;
+    (async () => {
+      try {
+        const { query } = await readJson(req, res);
+        if (res.writableEnded) return;
+        if (typeof query !== 'string' || !query.trim()) throw new Error('Enter a question to search the web.');
+        const results = await searchWeb(query.trim());
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ results }));
+      } catch (error) {
+        if (res.writableEnded) return;
+        if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: error.message || 'Could not reach the AI service.' }));
+      }
+    })();
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/images') {
+    if (!allowApiRequest(req, res)) return;
+    (async () => {
+      try {
+        const { query } = await readJson(req, res);
+        if (res.writableEnded) return;
+        if (typeof query !== 'string' || !query.trim()) throw new Error('Enter a question to find related images.');
+        const images = await searchImages(query.trim());
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ images }));
+      } catch (error) {
+        if (res.writableEnded) return;
+        if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: error.message || 'Could not search for images.' }));
+      }
+    })();
+    return;
+  }
+
+  if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); return; }
+  const pathname = decodeURIComponent((req.url || '/').split('?')[0]);
+  const safe = normalize(pathname === '/' ? '/index.html' : pathname).replace(/^([/\\]*\.\.[/\\])+/, '');
+  try {
+    const body = await readFile(join(root, safe));
+    res.writeHead(200, { 'Content-Type': types[extname(safe)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+    res.end(req.method === 'HEAD' ? undefined : body);
+  } catch {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Not found');
+  }
+});
+
+server.listen(port, host, () => console.log(`DP Intelligence is ready on ${host}:${port}`));
