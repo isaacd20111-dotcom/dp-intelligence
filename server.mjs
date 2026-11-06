@@ -7,26 +7,6 @@ const root = join(fileURLToPath(new URL('.', import.meta.url)), 'public');
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
-const requestCounts = new Map();
-
-function allowApiRequest(req, res) {
-  const now = Date.now();
-  const forwarded = req.headers['x-forwarded-for'];
-  const address = (typeof forwarded === 'string' ? forwarded.split(',').at(-1)?.trim() : '') || req.socket.remoteAddress || 'unknown';
-  const bucket = requestCounts.get(address);
-  if (!bucket || now - bucket.startedAt >= 60_000) {
-    requestCounts.set(address, { startedAt: now, count: 1 });
-    return true;
-  }
-  if (bucket.count >= 30) {
-    res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8', 'Retry-After': '60' });
-    res.end(JSON.stringify({ error: 'Too many searches. Please wait a minute and try again.' }));
-    return false;
-  }
-  bucket.count++;
-  return true;
-}
-
 function readJson(req, res) {
   return new Promise((resolve, reject) => {
     let raw = '';
@@ -103,7 +83,6 @@ async function searchImages(query) {
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/search') {
-    if (!allowApiRequest(req, res)) return;
     (async () => {
       try {
         const { query } = await readJson(req, res);
@@ -122,7 +101,6 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'POST' && req.url === '/api/images') {
-    if (!allowApiRequest(req, res)) return;
     (async () => {
       try {
         const { query } = await readJson(req, res);
