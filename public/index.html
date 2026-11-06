@@ -65,13 +65,14 @@
             <div class="composer-tools">
               <button type="button" class="tool-pill active" id="webToggle" aria-pressed="true"><span>◎</span> Web search <span class="toggle-dot"></span></button>
               <button type="button" class="tool-pill" id="codeToggle" aria-pressed="false"><span class="code-glyph">&lt;/&gt;</span> Code mode</button>
+              <button type="button" class="tool-pill" id="cloudToggle" aria-pressed="false"><span>☁</span> Cloud AI</button>
               <button type="button" class="tool-pill" id="imageToggle" aria-pressed="false"><span>✦</span> Image mode</button>
               <span class="composer-hint">Search the web for current answers</span>
             </div>
             <button class="send-button" id="sendButton" type="submit" aria-label="Send message"><svg viewBox="0 0 20 20"><path d="M10 15V4m0 0L5.5 8.5M10 4l4.5 4.5"/></svg></button>
           </div>
         </form>
-        <div class="disclaimer">AI can make mistakes. For important decisions, check the sources.</div>
+      <div class="disclaimer">AI can make mistakes. Cloud AI sends prompts to its provider and uses your approved budget.</div>
       </div>
     </main>
   </div>
@@ -91,7 +92,18 @@
       <div class="settings-note"><span>✳</span><span>This is a local profile, not a verified online account. Your email and phone stay in this browser and are not sent anywhere.</span></div>
       <button id="saveProfile" class="save-button" type="submit">Create my profile <span>→</span></button>
     </form>
-    <div class="local-model-note">DP Intelligence runs on your device. The first chat downloads the model; it should stay saved in this browser for next time. Private browsing, clearing site data, or browser storage cleanup can remove it. iPhone and iPad start with the smaller 360M model because larger models can exceed Safari’s memory. It is less capable, so web search stays on for evidence-based answers. Choose Llama 3.2 1B for a more capable model; it uses more memory and may close Safari on older devices.</div>
+    <div class="local-model-note">On-device AI runs in this browser and the first chat downloads its model. On iPhone and iPad it starts with the smaller 360M model because larger models can exceed Safari’s memory. For stronger answers, turn on Cloud AI; prompts go to Pollinations and use the budget you approve. You can switch Cloud AI off any time.</div>
+  </dialog>
+  <dialog id="textSetupDialog" class="settings-dialog">
+    <form method="dialog"><button class="dialog-close" aria-label="Close cloud AI setup">×</button></form>
+    <div class="dialog-eyebrow">STRONGER ONLINE ANSWERS</div>
+    <h2>Connect Cloud AI</h2>
+    <p class="dialog-description">Cloud AI uses a stronger hosted model than the small iPhone model. Your prompts are sent to Pollinations. The consent screen lets you set a spending limit; generation stops when that budget is used.</p>
+    <label class="field-label" for="pollinationsTextAppKey">Pollinations App Key</label>
+    <div class="key-input-wrap"><input id="pollinationsTextAppKey" type="text" placeholder="pk_…" autocomplete="off" spellcheck="false" /></div>
+    <div class="settings-note"><span>✳</span><span>Create or reuse a public App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Its redirect URL must be <strong id="textRedirectUrl"></strong>. Paste the public pk_ key here, then approve the model and budget on Pollinations. Never paste an sk_ secret key.</span></div>
+    <button id="connectTextAccount" class="save-button" type="button">Authorize Cloud AI <span>→</span></button>
+    <button id="disconnectTextAccount" class="clear-key" type="button">Disconnect Cloud AI</button>
   </dialog>
   <dialog id="imageSetupDialog" class="settings-dialog">
     <form method="dialog"><button class="dialog-close" aria-label="Close image setup">×</button></form>
