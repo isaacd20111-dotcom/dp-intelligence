@@ -152,7 +152,9 @@ async function sendMessage(text,{resume=false}={}){
 }
 
 async function* createCloudStream(messages){
-  const response=await fetch('https://gen.pollinations.ai/v1/chat/completions',{method:'POST',headers:{'Authorization':`Bearer ${textAuthToken}`,'Content-Type':'application/json','Pollinations-Safe':'privacy,secrets'},body:JSON.stringify({model:'openai/gpt-5.4-mini',messages,stream:true,max_tokens:1800}),signal:state.controller.signal});
+  // Do not apply the optional privacy filter to chat prompts: it classifies URLs
+  // in web-search context as sensitive and can block otherwise ordinary questions.
+  const response=await fetch('https://gen.pollinations.ai/v1/chat/completions',{method:'POST',headers:{'Authorization':`Bearer ${textAuthToken}`,'Content-Type':'application/json'},body:JSON.stringify({model:'openai/gpt-5.4-mini',messages,stream:true,max_tokens:1800}),signal:state.controller.signal});
   if(!response.ok){const data=await response.json().catch(()=>({}));const error=new Error(data.error?.message||(typeof data.error==='string'?data.error:`Cloud AI request failed (${response.status}). Check your approved budget or reconnect.`));error.status=response.status;throw error;}
   if(!response.body)throw new Error('Cloud AI returned no response stream. Please try again.');
   const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='';
