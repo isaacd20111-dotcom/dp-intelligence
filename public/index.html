@@ -45,12 +45,13 @@
       <section class="welcome" id="welcome">
         <div class="eyebrow"><span class="sparkle-mini">✳</span> DP INTELLIGENCE · ON DEVICE</div>
         <h1>Good thinking<br />starts <span>here.</span></h1>
-        <p class="welcome-copy">Ask anything, search current sources, or switch to Code mode for practical, runnable programs.</p>
+        <p class="welcome-copy">Ask anything, search current sources, build runnable code, or create original AI images.</p>
         <div class="prompt-grid">
           <button class="prompt-card" data-prompt="What are the most interesting things happening in the world today?"><span class="card-icon warm">◉</span><span class="card-text"><strong>Catch me up</strong><small>What’s happening in the world today?</small></span><span class="card-arrow">↗</span></button>
           <button class="prompt-card" data-prompt="Help me understand a complicated topic in simple terms."><span class="card-icon violet">✧</span><span class="card-text"><strong>Make it make sense</strong><small>Explain something complicated, simply.</small></span><span class="card-arrow">↗</span></button>
           <button class="prompt-card" data-prompt="Help me plan a great weekend, with a few thoughtful ideas."><span class="card-icon green">⌁</span><span class="card-text"><strong>Make a plan</strong><small>Turn a vague idea into a good one.</small></span><span class="card-arrow">↗</span></button>
           <button class="prompt-card" data-mode="code" data-prompt="Build a simple, responsive personal portfolio website with a dark theme. Include all files and clear instructions for running it."><span class="card-icon blue">&lt;/&gt;</span><span class="card-text"><strong>Build something</strong><small>Start a project with complete code.</small></span><span class="card-arrow">↗</span></button>
+          <button class="prompt-card" data-mode="image" data-prompt="A cinematic fantasy landscape at blue hour, dramatic clouds, a lone lighthouse on a cliff, richly detailed digital art"><span class="card-icon violet">✦</span><span class="card-text"><strong>Create an image</strong><small>Turn a description into original art.</small></span><span class="card-arrow">↗</span></button>
         </div>
         <div class="welcome-foot"><span class="web-icon">◎</span> Grounded in the live web <span class="foot-dot">·</span> Sources included</div>
       </section>
@@ -64,6 +65,7 @@
             <div class="composer-tools">
               <button type="button" class="tool-pill active" id="webToggle" aria-pressed="true"><span>◎</span> Web search <span class="toggle-dot"></span></button>
               <button type="button" class="tool-pill" id="codeToggle" aria-pressed="false"><span class="code-glyph">&lt;/&gt;</span> Code mode</button>
+              <button type="button" class="tool-pill" id="imageToggle" aria-pressed="false"><span>✦</span> Image mode</button>
               <span class="composer-hint">Search the web for current answers</span>
             </div>
             <button class="send-button" id="sendButton" type="submit" aria-label="Send message"><svg viewBox="0 0 20 20"><path d="M10 15V4m0 0L5.5 8.5M10 4l4.5 4.5"/></svg></button>
@@ -90,6 +92,17 @@
       <button id="saveProfile" class="save-button" type="submit">Create my profile <span>→</span></button>
     </form>
     <div class="local-model-note">DP Intelligence runs on your device. The first chat downloads the model; it should stay saved in this browser for next time. Private browsing, clearing site data, or browser storage cleanup can remove it. iPhone and iPad use a smaller model to reduce the chance Safari closes the page while loading.</div>
+  </dialog>
+  <dialog id="imageSetupDialog" class="settings-dialog">
+    <form method="dialog"><button class="dialog-close" aria-label="Close image setup">×</button></form>
+    <div class="dialog-eyebrow">IMAGE GENERATION</div>
+    <h2>Connect your image account</h2>
+    <p class="dialog-description">DP Intelligence sends your image prompt to Pollinations. Your account authorizes a limited image-only budget, and you can revoke it any time. Generation uses your Pollinations balance.</p>
+    <label class="field-label" for="pollinationsAppKey">Pollinations App Key</label>
+    <div class="key-input-wrap"><input id="pollinationsAppKey" type="text" placeholder="pk_…" autocomplete="off" spellcheck="false" /></div>
+    <div class="settings-note"><span>✳</span><span>First, create an App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Set its redirect URL to <strong id="imageRedirectUrl"></strong>, then paste the public pk_ key here. Never paste an sk_ secret key.</span></div>
+    <button id="connectImageAccount" class="save-button" type="button">Authorize image generation <span>→</span></button>
+    <button id="disconnectImageAccount" class="clear-key" type="button">Disconnect this image account</button>
   </dialog>
   <script type="module" src="/app.js"></script>
 </body>
