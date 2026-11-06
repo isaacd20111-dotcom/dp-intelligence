@@ -71,6 +71,7 @@ async function ensureEngine(){
       if(!navigator.gpu)throw new Error('This browser does not support WebGPU. Open DP Intelligence in an up-to-date Chrome or Edge browser to run AI on this device.');
       const model=localSettings.model||DEFAULT_MODEL;
       setThinking('Loading the on-device AI model…');
+      try{if(navigator.storage?.persisted&&navigator.storage?.persist&&!await navigator.storage.persisted())await navigator.storage.persist();}catch{}
       const result=await CreateMLCEngine(model,{initProgressCallback:(progress)=>{const label=progress?.text||'';const percent=label.match(/([\d.]+)% completed/i)?.[1];const amount=label.match(/([\d.]+\s*MB) fetched/i)?.[1];setThinking(percent?`Downloading model · ${Math.round(Number(percent))}%${amount?` · ${amount} so far`:''}`:'Preparing the local AI model…');}});
       engine=result;
       $('#modelStatus').textContent='On-device AI ready';
