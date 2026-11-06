@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#11110f" />
+  <meta name="theme-color" content="#0a0c12" />
   <title>DP Intelligence — your AI, in the know</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,12 +45,12 @@
       <section class="welcome" id="welcome">
         <div class="eyebrow"><span class="sparkle-mini">✳</span> DP INTELLIGENCE · ON DEVICE</div>
         <h1>Good thinking<br />starts <span>here.</span></h1>
-        <p class="welcome-copy">Ask anything. DP Intelligence looks things up, connects the dots,<br class="desktop-break" /> and gives you an answer you can actually use.</p>
+        <p class="welcome-copy">Ask anything, search current sources, or switch to Code mode for practical, runnable programs.</p>
         <div class="prompt-grid">
           <button class="prompt-card" data-prompt="What are the most interesting things happening in the world today?"><span class="card-icon warm">◉</span><span class="card-text"><strong>Catch me up</strong><small>What’s happening in the world today?</small></span><span class="card-arrow">↗</span></button>
           <button class="prompt-card" data-prompt="Help me understand a complicated topic in simple terms."><span class="card-icon violet">✧</span><span class="card-text"><strong>Make it make sense</strong><small>Explain something complicated, simply.</small></span><span class="card-arrow">↗</span></button>
           <button class="prompt-card" data-prompt="Help me plan a great weekend, with a few thoughtful ideas."><span class="card-icon green">⌁</span><span class="card-text"><strong>Make a plan</strong><small>Turn a vague idea into a good one.</small></span><span class="card-arrow">↗</span></button>
-          <button class="prompt-card" data-prompt="Give me a fresh perspective on a problem I’m working through."><span class="card-icon blue">✳</span><span class="card-text"><strong>Think it through</strong><small>Get a fresh perspective on a problem.</small></span><span class="card-arrow">↗</span></button>
+          <button class="prompt-card" data-mode="code" data-prompt="Build a simple, responsive personal portfolio website with a dark theme. Include all files and clear instructions for running it."><span class="card-icon blue">&lt;/&gt;</span><span class="card-text"><strong>Build something</strong><small>Start a project with complete code.</small></span><span class="card-arrow">↗</span></button>
         </div>
         <div class="welcome-foot"><span class="web-icon">◎</span> Grounded in the live web <span class="foot-dot">·</span> Sources included</div>
       </section>
@@ -63,6 +63,7 @@
           <div class="composer-bottom">
             <div class="composer-tools">
               <button type="button" class="tool-pill active" id="webToggle" aria-pressed="true"><span>◎</span> Web search <span class="toggle-dot"></span></button>
+              <button type="button" class="tool-pill" id="codeToggle" aria-pressed="false"><span class="code-glyph">&lt;/&gt;</span> Code mode</button>
               <span class="composer-hint">Search the web for current answers</span>
             </div>
             <button class="send-button" id="sendButton" type="submit" aria-label="Send message"><svg viewBox="0 0 20 20"><path d="M10 15V4m0 0L5.5 8.5M10 4l4.5 4.5"/></svg></button>
