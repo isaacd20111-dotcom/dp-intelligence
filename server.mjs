@@ -92,6 +92,7 @@ const weatherCodes = new Map([
 async function weatherFor(location) {
   const query = location.trim().slice(0, 120);
   if (!query) throw new Error('Tell me a city or country to check its weather.');
+  const fold = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const geocode = async name => {
     const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
     url.searchParams.set('name', name);
@@ -117,10 +118,18 @@ async function weatherFor(location) {
   let place;
   if (country?.capital?.[0]) {
     const capitals = await geocode(`${country.capital[0]}, ${country.name.common}`);
-    place = capitals.find(item => item.feature_code === 'PPLC') || capitals[0];
+    place = capitals.find(item => fold(item.name) === fold(country.capital[0]) && item.country_code === country.cca2) || capitals.find(item => item.country_code === country.cca2);
   }
   if (!place) {
-    place = places.find(item => item.feature_code === 'PPLC') || places[0];
+    const requestedName = fold(query.split(',')[0]);
+    const exactMatches = places.filter(item => fold(item.name) === requestedName);
+    const matchingPlaces = exactMatches.length ? exactMatches : places;
+    const regions = new Set(matchingPlaces.map(item => `${item.country_code || ''}:${item.admin1 || ''}`));
+    if (!query.includes(',') && exactMatches.length > 1 && regions.size > 1) {
+      const options = [...new Set(exactMatches.slice(0, 4).map(item => [item.admin1, item.country].filter(Boolean).join(', ')))];
+      throw new Error(`I found more than one place called “${query}”. Add its state or country, for example: ${options.join(' or ')}.`);
+    }
+    place = [...matchingPlaces].sort((a, b) => (b.population || 0) - (a.population || 0))[0];
   }
   if (!place) throw new Error(`I couldn't identify “${query}”. Try a city or country name.`);
   const forecast = new URL('https://api.open-meteo.com/v1/forecast');
@@ -135,9 +144,18 @@ async function weatherFor(location) {
   const data = await response.json();
   const current = data.current;
   if (!current || !Number.isFinite(current.temperature_2m)) throw new Error('Weather data was unavailable for that location.');
+  const timezone = data.timezone || place.timezone;
+  if (!timezone) throw new Error('Could not determine the local time zone for this location.');
+  const now = new Date();
+  const localNow = new Intl.DateTimeFormat('en-GB', { timeZone: timezone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(now);
   return {
     location: [place.name, place.admin1, place.country].filter(Boolean).join(', '),
-    localTime: current.time,
+    coordinates: { latitude: place.latitude, longitude: place.longitude },
+    timezone,
+    localTimeNow: localNow,
+    weatherValidTime: current.time,
+    weatherIntervalMinutes: Number.isFinite(current.interval) ? Math.round(current.interval / 60) : null,
+    utcOffsetSeconds: data.utc_offset_seconds,
     temperatureC: current.temperature_2m,
     temperatureF: Math.round((current.temperature_2m * 9 / 5 + 32) * 10) / 10,
     feelsLikeC: current.apparent_temperature,
