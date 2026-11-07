@@ -24,7 +24,11 @@
         <button class="side-link active" id="homeLink"><svg viewBox="0 0 20 20"><path d="M3 9.1 10 3l7 6.1v7.1a.8.8 0 0 1-.8.8H3.8a.8.8 0 0 1-.8-.8V9.1Z"/><path d="M7.5 17v-5.5h5V17"/></svg> Home</button>
       </div>
       <div class="history-wrap">
-        <div class="side-label history-label">RECENT</div>
+        <div class="side-label history-label" id="pinnedLabel" hidden>PINNED</div>
+        <div id="pinnedList" class="history-list"></div>
+        <div class="side-label history-label" id="savedLabel" hidden>SAVED</div>
+        <div id="savedList" class="history-list"></div>
+        <div class="side-label history-label" id="recentLabel" hidden>RECENT</div>
         <div id="historyList" class="history-list"></div>
         <div class="empty-history" id="emptyHistory">Your conversations<br />will show up here.</div>
       </div>
@@ -41,6 +45,7 @@
         <div class="topbar-title" id="topbarTitle">A little more capable.</div>
         <div class="topbar-right"><span class="online-dot"></span><span class="search-status" id="searchStatus" hidden>Searching…</span><span class="online-label" id="modelStatus">AI runs on this device</span><button class="top-settings" id="settingsTop">Your profile <span>↗</span></button></div>
       </header>
+      <div class="chat-action-notice" id="chatActionNotice" role="status" aria-live="polite" hidden></div>
 
       <section class="welcome" id="welcome">
         <div class="eyebrow"><span class="sparkle-mini">✳</span> DP INTELLIGENCE · ON DEVICE</div>

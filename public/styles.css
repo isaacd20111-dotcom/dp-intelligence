@@ -70,6 +70,14 @@ body,.app-shell{background:var(--bg);color:var(--text)}
 .background-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;color:#828b82;font-size:10px}
 .background-controls .clear-key{margin:0;color:#a7c5aa}
 .background-controls .clear-key[hidden]{display:none}
+.history-row{display:flex;align-items:center;gap:2px;min-width:0;border-radius:7px}
+.history-item{flex:1;min-width:0;width:auto;padding-right:2px}
+.history-actions{display:flex;align-items:center;gap:1px;padding-right:3px}
+.history-action{width:23px;height:27px;display:grid;place-items:center;border:0;border-radius:5px;background:transparent;color:#737e74;font:14px var(--font);cursor:pointer}
+.history-action:hover,.history-action.is-active{background:#19221a;color:#80df94}
+.save-chat-action{font-size:15px}
+.chat-action-notice{position:absolute;z-index:3;top:76px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);padding:10px 14px;border:1px solid #344438;border-radius:7px;background:#111711;color:#dce8dd;box-shadow:0 8px 24px #0008;font-size:12px;line-height:1.5}
+.chat-action-notice[hidden]{display:none}
 .search-status{color:#9fe5ab}
 .error-card{background:#241817;border-color:#59403d;color:#f0d6d3}
 .generated-image-link{background:#0b0e0b;border-color:#2b342c;border-radius:9px;box-shadow:none}
