@@ -89,6 +89,16 @@ body.compact-chat .conversation{padding-top:16px;padding-bottom:138px}
 body.compact-chat .message{margin-bottom:13px}
 body.compact-chat .user-bubble{padding:9px 12px}
 body.compact-chat .answer-body{line-height:1.65}
+html[data-accent-style="neutral"]{--accent:#d8ded8}
+html[data-accent-style="neutral"] .brand-mark,html[data-accent-style="neutral"] .brand-period,html[data-accent-style="neutral"] .sparkle-mini,html[data-accent-style="neutral"] .web-icon{color:#d8ded8}
+html[data-accent-style="neutral"] .online-dot,html[data-accent-style="neutral"] .toggle-dot,html[data-accent-style="neutral"] .key-status.connected{background:#d8ded8}
+html[data-accent-style="neutral"] .top-settings{background:#1b1e1b;color:#e0e5e0}
+html[data-accent-style="neutral"] .welcome h1 span,html[data-accent-style="neutral"] .assistant-avatar,html[data-accent-style="neutral"] .answer-body a{color:#d8ded8}
+html[data-accent-style="neutral"] .send-button,html[data-accent-style="neutral"] .save-button{background:#d8ded8;color:#111411}
+html[data-accent-style="neutral"] .tool-pill.active{background:#202420;border-color:#525b52;color:#e0e5e0}
+html[data-accent-style="neutral"] .assistant-avatar{background:#202420;border-color:#424842}
+html[data-accent-style="neutral"] .history-action:hover,html[data-accent-style="neutral"] .history-action.is-active{background:#202420;color:#e0e5e0}
+html[data-accent-style="neutral"] .background-upload span{color:#d8ded8}
 .history-row{display:flex;align-items:center;gap:2px;min-width:0;border-radius:7px}
 .history-item{flex:1;min-width:0;width:auto;padding-right:2px}
 .history-actions{display:flex;align-items:center;gap:1px;padding-right:3px}
