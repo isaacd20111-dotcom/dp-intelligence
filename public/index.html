@@ -109,7 +109,7 @@
     <form method="dialog"><button class="dialog-close" aria-label="Close image setup">×</button></form>
     <div class="dialog-eyebrow">IMAGE GENERATION</div>
     <h2>Connect your image account</h2>
-    <p class="dialog-description">DP Intelligence uses a higher-quality image model and adds composition guidance to your prompt. Images may take longer and use more of your Pollinations balance. Clear the Budget field on the Pollinations consent screen to remove the per-key cap; generation still stops when your available balance runs out.</p>
+    <p class="dialog-description">Image mode now uses GPT Image 2 at high quality, improves composition and exact-text instructions, and chooses portrait, landscape, or square framing from your prompt. High-quality generations can take longer and use more of your Pollinations balance; check the model pricing on Pollinations before generating.</p>
     <label class="field-label" for="pollinationsAppKey">Pollinations App Key</label>
     <div class="key-input-wrap"><input id="pollinationsAppKey" type="text" placeholder="pk_…" autocomplete="off" spellcheck="false" /></div>
     <div class="settings-note"><span>✳</span><span>Create or reuse an App Key at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noreferrer">Pollinations Keys</a>. Allow image models, set its redirect URL to <strong id="imageRedirectUrl"></strong>, and paste the public pk_ key here. On the consent screen, clear Budget to remove the per-key cap. Never paste an sk_ secret key.</span></div>
