@@ -70,6 +70,25 @@ body,.app-shell{background:var(--bg);color:var(--text)}
 .background-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;color:#828b82;font-size:10px}
 .background-controls .clear-key{margin:0;color:#a7c5aa}
 .background-controls .clear-key[hidden]{display:none}
+.settings-dialog#settingsDialog{width:min(500px,calc(100% - 28px));padding:25px 27px}
+.settings-section{margin-top:18px;padding-top:15px;border-top:1px solid #273027}
+.settings-section-title{margin:0 0 10px;color:#8f9b90;font:700 9px var(--font);letter-spacing:1.2px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 1px;color:#e1e7e1;cursor:pointer}
+.setting-row>span{display:flex;flex-direction:column;gap:3px}
+.setting-row strong{font-size:11px;font-weight:600}
+.setting-row small,.settings-help{color:#889288;font-size:10px;line-height:1.5}
+.setting-row input[type=checkbox]{appearance:none;flex:0 0 auto;position:relative;width:33px;height:19px;margin:0;border:1px solid #39443a;border-radius:20px;background:#171c17;cursor:pointer;transition:background .15s,border-color .15s}
+.setting-row input[type=checkbox]::after{content:"";position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:#899389;transition:transform .15s,background .15s}
+.setting-row input[type=checkbox]:checked{background:#24542e;border-color:#4a9c5d}
+.setting-row input[type=checkbox]:checked::after{transform:translateX(14px);background:#8ce59d}
+.settings-select-label{margin:10px 0 6px}
+.settings-choice{margin-bottom:4px}
+.settings-help{margin:0 0 10px}
+.data-section .background-upload{font-family:var(--font)}
+body.compact-chat .conversation{padding-top:16px;padding-bottom:138px}
+body.compact-chat .message{margin-bottom:13px}
+body.compact-chat .user-bubble{padding:9px 12px}
+body.compact-chat .answer-body{line-height:1.65}
 .history-row{display:flex;align-items:center;gap:2px;min-width:0;border-radius:7px}
 .history-item{flex:1;min-width:0;width:auto;padding-right:2px}
 .history-actions{display:flex;align-items:center;gap:1px;padding-right:3px}
