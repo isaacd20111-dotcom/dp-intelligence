@@ -57,6 +57,18 @@ body,.app-shell{background:var(--bg);color:var(--text)}
 .settings-note span:first-child{color:var(--accent)}
 .settings-note strong{color:#dce9dd}
 .local-model-note{border-color:#293129}
+.main.custom-chat-background{background-color:#090b09;background-image:linear-gradient(rgba(8,10,8,.76),rgba(8,10,8,.76)),var(--chat-bg-image);background-size:cover;background-position:center}
+.settings-dialog{max-height:90dvh;overflow-y:auto}
+.background-settings{margin-top:18px;padding:13px;border:1px solid #293129;border-radius:8px;background:#0c0f0c}
+.background-settings h3{margin:0 0 5px;color:#e4e9e4;font:600 12px var(--display)}
+.background-settings p{margin:0 0 11px;color:#929a92;font-size:10px;line-height:1.5}
+.background-upload{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid #344238;border-radius:6px;background:#151a15;color:#d4e5d6;font-size:11px;cursor:pointer}
+.background-upload:hover{background:#1b241c;border-color:#5a805f}
+.background-upload span{color:#75d687;font-size:15px;line-height:10px}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.visually-hidden:focus-visible+.background-settings{outline:2px solid #65dc80}
+.background-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;color:#828b82;font-size:10px}
+.background-controls .clear-key{margin:0;color:#a7c5aa}
 .search-status{color:#9fe5ab}
 .error-card{background:#241817;border-color:#59403d;color:#f0d6d3}
 .generated-image-link{background:#0b0e0b;border-color:#2b342c;border-radius:9px;box-shadow:none}

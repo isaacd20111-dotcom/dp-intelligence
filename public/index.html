@@ -89,6 +89,13 @@
       <div class="key-input-wrap"><input id="profilePhoneInput" type="tel" placeholder="Your phone number" autocomplete="tel" required /></div>
       <label class="field-label model-label" for="modelSelect">On-device model <span class="optional">choose for your device</span></label>
       <select id="modelSelect"></select>
+      <section class="background-settings" aria-labelledby="chatBackgroundTitle">
+        <h3 id="chatBackgroundTitle">Chat background</h3>
+        <p>Choose an image from this device. It stays private in this browser.</p>
+        <label class="background-upload" for="chatBackgroundInput"><span>＋</span> Upload an image</label>
+        <input id="chatBackgroundInput" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp" />
+        <div class="background-controls"><span id="backgroundStatus" role="status">No custom image selected</span><button id="removeChatBackground" class="clear-key" type="button" hidden>Remove image</button></div>
+      </section>
       <div class="settings-note"><span>✳</span><span>This is a local profile, not a verified online account. Your email and phone stay in this browser and are not sent anywhere.</span></div>
       <button id="saveProfile" class="save-button" type="submit">Create my profile <span>→</span></button>
     </form>

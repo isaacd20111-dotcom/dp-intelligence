@@ -5,6 +5,7 @@ const welcome = $('#welcome'), conversation = $('#conversation'), form = $('#cha
 const settingsDialog = $('#settingsDialog'), profileForm = $('#profileForm');
 const state = { chats: JSON.parse(localStorage.getItem('nova.chats') || '[]'), active: null, busy: false, web: true, coding: false, cloud: false, image: false, controller: null };
 const memoryJobs = new WeakMap();
+let backgroundDbPromise;
 let profile = JSON.parse(localStorage.getItem('nova.profile') || 'null');
 let localSettings = JSON.parse(localStorage.getItem('nova.localSettings') || '{}');
 let enginePromise = null;
@@ -31,6 +32,26 @@ try {
 state.coding=Boolean(localSettings.coding);
 
 function saveChats(){ localStorage.setItem('nova.chats', JSON.stringify(state.chats)); renderHistory(); }
+function backgroundDatabase(){
+  if(!('indexedDB' in window))return Promise.reject(new Error('This browser does not support saved backgrounds.'));
+  if(!backgroundDbPromise)backgroundDbPromise=new Promise((resolve,reject)=>{const request=indexedDB.open('dp-intelligence-settings',1);request.onupgradeneeded=()=>request.result.createObjectStore('preferences');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('Could not open browser storage.'));});
+  return backgroundDbPromise;
+}
+async function saveChatBackground(data){const db=await backgroundDatabase();await new Promise((resolve,reject)=>{const tx=db.transaction('preferences','readwrite');tx.objectStore('preferences').put(data,'chatBackground');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Could not save the background.'));});}
+async function readChatBackground(){const db=await backgroundDatabase();return new Promise((resolve,reject)=>{const request=db.transaction('preferences','readonly').objectStore('preferences').get('chatBackground');request.onsuccess=()=>resolve(request.result||'');request.onerror=()=>reject(request.error||new Error('Could not load the saved background.'));});}
+function applyChatBackground(data){const main=$('.main'),status=$('#backgroundStatus'),remove=$('#removeChatBackground');if(data){main.style.setProperty('--chat-bg-image',`url("${data}")`);main.classList.add('custom-chat-background');status.textContent='Custom image is active';remove.hidden=false;}else{main.style.removeProperty('--chat-bg-image');main.classList.remove('custom-chat-background');status.textContent='No custom image selected';remove.hidden=true;}}
+async function loadChatBackground(){try{applyChatBackground(await readChatBackground());}catch{const status=$('#backgroundStatus');if(status)status.textContent='Saved backgrounds are unavailable in this browser';}}
+async function handleChatBackgroundUpload(file){
+  if(!file)return;
+  const status=$('#backgroundStatus');
+  if(!/^image\/(png|jpeg|webp)$/.test(file.type)){status.textContent='Choose a PNG, JPG, or WebP image';return;}
+  if(file.size>20*1024*1024){status.textContent='Choose an image smaller than 20 MB';return;}
+  status.textContent='Preparing image…';
+  const image=new Image(),url=URL.createObjectURL(file);
+  try{image.src=url;await image.decode();const scale=Math.min(1,1920/Math.max(image.naturalWidth,image.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));const context=canvas.getContext('2d');if(!context)throw new Error('Could not prepare this image.');context.drawImage(image,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/jpeg',0.84);await saveChatBackground(data);applyChatBackground(data);}
+  catch(error){status.textContent=error?.name==='QuotaExceededError'?'Browser storage is full. Remove some site data and try again.':'Could not save that image. Try a different PNG, JPG, or WebP file.';}
+  finally{URL.revokeObjectURL(url);$('#chatBackgroundInput').value='';}
+}
 function activeChat(){ return state.chats.find(c => c.id === state.active); }
 function renderHistory(){ const box=$('#historyList'); box.replaceChildren(); $('#emptyHistory').style.display=state.chats.length?'none':'block'; state.chats.slice(0,30).forEach(chat=>{const b=document.createElement('button');b.className='history-item'+(chat.id===state.active?' selected':'');b.textContent=chat.title;b.title=chat.title;b.onclick=()=>openChat(chat.id);box.append(b)}); }
 function refreshConversationMemory(chat,useCloud,modelEngine,contextLimit){
@@ -269,10 +290,13 @@ profileForm.addEventListener('submit',e=>{e.preventDefault();if(!profileForm.rep
 input.addEventListener('input',resizeInput);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
 $('#newChat').onclick=createChat;$('#homeLink').onclick=()=>{state.active=null;renderHistory();showWelcome();$('#topbarTitle').textContent='A little more capable.';closeMobileMenu();};
 $('#settingsButton').onclick=openSettings;$('#settingsTop').onclick=openSettings;$('#webToggle').onclick=()=>{setImageMode(false);setWeb(!state.web);};$('#codeToggle').onclick=()=>{setImageMode(false);setCoding(!state.coding);};$('#cloudToggle').onclick=()=>{setImageMode(false);setCloudAnswers(!state.cloud);};$('#connectTextAccount').onclick=connectTextAccount;$('#disconnectTextAccount').onclick=()=>{textAuthToken='';sessionStorage.removeItem('dp.text.token');sessionStorage.removeItem('dp.text.enabled');sessionStorage.removeItem('dp.text.authVersion');$('#textSetupDialog').close();setCloudAnswers(false);};$('#imageToggle').onclick=()=>{if(!state.image&&state.cloud)setCloudAnswers(false);setImageMode(!state.image);};$('#connectImageAccount').onclick=connectImageAccount;$('#disconnectImageAccount').onclick=()=>{imageAuthToken='';sessionStorage.removeItem('dp.image.token');sessionStorage.removeItem('dp.image.enabled');sessionStorage.removeItem('dp.image.model');sessionStorage.removeItem('dp.image.authVersion');$('#imageSetupDialog').close();setImageMode(false);};$('#menuButton').onclick=()=>{$('#sidebar').classList.add('open');$('#scrim').classList.add('show');};$('#closeSidebar').onclick=closeMobileMenu;$('#scrim').onclick=closeMobileMenu;
+$('#chatBackgroundInput').addEventListener('change',event=>handleChatBackgroundUpload(event.target.files?.[0]));
+$('#removeChatBackground').addEventListener('click',async()=>{try{const db=await backgroundDatabase();await new Promise((resolve,reject)=>{const tx=db.transaction('preferences','readwrite');tx.objectStore('preferences').delete('chatBackground');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});applyChatBackground('');}catch{$('#backgroundStatus').textContent='Could not remove the saved image';}});
 document.querySelectorAll('.prompt-card').forEach(b=>b.onclick=()=>{if(b.dataset.mode==='code')setCoding(true);if(b.dataset.mode==='image'){setImageMode(true);if(!state.image)return;}sendMessage(b.dataset.prompt)});
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();createChat();}if(e.key==='Escape'&&settingsDialog.open)settingsDialog.close();});
 
 modelSelectOptions();
+loadChatBackground();
 setCoding(state.coding);
 function modelSelectOptions(){const select=$('#modelSelect');select.innerHTML=isIOS?`<option value="${MODEL_IOS}">SmolLM2 · 360M · safest for Safari memory</option><option value="${MODEL_1B}">Llama 3.2 · 1B · more capable, uses more memory</option>`:`<option value="${MODEL_3B}">Llama 3.2 · 3B · sharper answers</option><option value="${MODEL_1B}">Llama 3.2 · 1B · faster responses</option>`;select.value=localSettings.model||DEFAULT_MODEL;select.addEventListener('change',()=>{if(engine&&localSettings.model!==select.value){engine=null;enginePromise=null;}localSettings.model=select.value;localStorage.setItem('nova.localSettings',JSON.stringify(localSettings));});}
 
