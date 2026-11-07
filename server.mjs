@@ -81,7 +81,94 @@ async function searchImages(query) {
   return images;
 }
 
+const weatherCodes = new Map([
+  [0, 'Clear sky'], [1, 'Mainly clear'], [2, 'Partly cloudy'], [3, 'Overcast'], [45, 'Fog'], [48, 'Depositing rime fog'],
+  [51, 'Light drizzle'], [53, 'Moderate drizzle'], [55, 'Dense drizzle'], [56, 'Light freezing drizzle'], [57, 'Dense freezing drizzle'],
+  [61, 'Light rain'], [63, 'Moderate rain'], [65, 'Heavy rain'], [66, 'Light freezing rain'], [67, 'Heavy freezing rain'],
+  [71, 'Light snow'], [73, 'Moderate snow'], [75, 'Heavy snow'], [77, 'Snow grains'], [80, 'Light rain showers'], [81, 'Moderate rain showers'], [82, 'Violent rain showers'],
+  [85, 'Light snow showers'], [86, 'Heavy snow showers'], [95, 'Thunderstorm'], [96, 'Thunderstorm with light hail'], [99, 'Thunderstorm with heavy hail']
+]);
+
+async function weatherFor(location) {
+  const query = location.trim().slice(0, 120);
+  if (!query) throw new Error('Tell me a city or country to check its weather.');
+  const geocode = async name => {
+    const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
+    url.searchParams.set('name', name);
+    url.searchParams.set('count', '10');
+    url.searchParams.set('language', 'en');
+    url.searchParams.set('format', 'json');
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) throw new Error('Location search is temporarily unavailable.');
+    return (await response.json()).results || [];
+  };
+  // Check exact country names alongside place lookup so country-only requests use the capital.
+  const countryLookup = (async () => {
+    const url = new URL(`https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`);
+    url.searchParams.set('fields', 'name,capital,cca2');
+    try {
+      const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
+      if (!response.ok) return null;
+      const countries = await response.json();
+      return countries.find(item => item.name?.common?.toLowerCase() === query.toLowerCase()) || null;
+    } catch { return null; }
+  })();
+  const [places, country] = await Promise.all([geocode(query), countryLookup]);
+  let place;
+  if (country?.capital?.[0]) {
+    const capitals = await geocode(`${country.capital[0]}, ${country.name.common}`);
+    place = capitals.find(item => item.feature_code === 'PPLC') || capitals[0];
+  }
+  if (!place) {
+    place = places.find(item => item.feature_code === 'PPLC') || places[0];
+  }
+  if (!place) throw new Error(`I couldn't identify “${query}”. Try a city or country name.`);
+  const forecast = new URL('https://api.open-meteo.com/v1/forecast');
+  forecast.searchParams.set('latitude', String(place.latitude));
+  forecast.searchParams.set('longitude', String(place.longitude));
+  forecast.searchParams.set('current', 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m');
+  forecast.searchParams.set('temperature_unit', 'celsius');
+  forecast.searchParams.set('wind_speed_unit', 'kmh');
+  forecast.searchParams.set('timezone', 'auto');
+  const response = await fetch(forecast, { signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error('Current weather is temporarily unavailable. Please try again shortly.');
+  const data = await response.json();
+  const current = data.current;
+  if (!current || !Number.isFinite(current.temperature_2m)) throw new Error('Weather data was unavailable for that location.');
+  return {
+    location: [place.name, place.admin1, place.country].filter(Boolean).join(', '),
+    localTime: current.time,
+    temperatureC: current.temperature_2m,
+    temperatureF: Math.round((current.temperature_2m * 9 / 5 + 32) * 10) / 10,
+    feelsLikeC: current.apparent_temperature,
+    feelsLikeF: Math.round((current.apparent_temperature * 9 / 5 + 32) * 10) / 10,
+    humidityPercent: current.relative_humidity_2m,
+    precipitationMm: current.precipitation,
+    windKmh: current.wind_speed_10m,
+    condition: weatherCodes.get(current.weather_code) || 'Unspecified conditions',
+    isDay: Boolean(current.is_day),
+    source: 'Open-Meteo'
+  };
+}
+
 const server = http.createServer(async (req, res) => {
+  if (req.method === 'POST' && req.url === '/api/weather') {
+    (async () => {
+      try {
+        const { location } = await readJson(req, res);
+        if (res.writableEnded) return;
+        if (typeof location !== 'string') throw new Error('Enter a city or country for the weather lookup.');
+        const weather = await weatherFor(location);
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ weather }));
+      } catch (error) {
+        if (res.writableEnded) return;
+        if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: error.message || 'Could not retrieve current weather.' }));
+      }
+    })();
+    return;
+  }
   if (req.method === 'POST' && req.url === '/api/search') {
     (async () => {
       try {
