@@ -69,6 +69,7 @@ body,.app-shell{background:var(--bg);color:var(--text)}
 .visually-hidden:focus-visible+.background-settings{outline:2px solid #65dc80}
 .background-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;color:#828b82;font-size:10px}
 .background-controls .clear-key{margin:0;color:#a7c5aa}
+.background-controls .clear-key[hidden]{display:none}
 .search-status{color:#9fe5ab}
 .error-card{background:#241817;border-color:#59403d;color:#f0d6d3}
 .generated-image-link{background:#0b0e0b;border-color:#2b342c;border-radius:9px;box-shadow:none}
